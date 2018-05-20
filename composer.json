@@ -1,0 +1,21 @@
+{
+    "name": "imarno/php-framework",
+    "description": "Simple Web MVC Framework",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Jordy",
+            "email": "arno.zheng@gmail.com"
+        }
+    ],
+    "require": {
+        "imarno/php-instance": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Alf\\": "src/",
+            "Bx\\": "tests/"
+        }
+    }
+}
