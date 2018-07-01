@@ -25,7 +25,8 @@ class Dispatcher
 
         if ($routePath) {
             $controllerPath = $this->parseRoutePath($routePath);
-        } else {
+        }
+        if (!$controllerPath) {
             $controllerPath = 'Index';
         }
 
