@@ -14,8 +14,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Alf\\": "src/",
-            "Bx\\": "tests/"
+            "Alf\\": "src/"
         }
     }
 }
