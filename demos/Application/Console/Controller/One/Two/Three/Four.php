@@ -1,25 +1,25 @@
 <?php
 
-namespace Bx\App\Console\Controller\One\Two\Three;
+namespace Ala\Application\Console\Controller\One\Two\Three;
 
-use Bx\App\Console\Controller\Controller;
+use Ala\Application\Console\Controller;
 
 class Four extends Controller
 {
     public function before()
     {
         parent::before();
-        echo 'Four::before()';
+        echo 'Four::before()'.PHP_EOL;
     }
 
     public function main()
     {
-        echo 'Four::main()';
+        echo 'Four::main()'.PHP_EOL;
     }
 
     public function after()
     {
         parent::after();
-        echo 'Four::after()';
+        echo 'Four::after()'.PHP_EOL;
     }
 }
