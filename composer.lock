@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "40f842778baf448109fda42d9a123777",
+    "content-hash": "e08f27d8466d95ce1d24b256b7a5e57f",
     "packages": [
         {
             "name": "imarno/php-instance",
-            "version": "v1.0.1",
+            "version": "v1.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/imarno/php-instance.git",
-                "reference": "7bdc96d31270ac2778ce6bd484065ac345b254de"
+                "reference": "65c308bf8dde0bd610eab7fb8e7febf429e3cdc6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/imarno/php-instance/zipball/7bdc96d31270ac2778ce6bd484065ac345b254de",
-                "reference": "7bdc96d31270ac2778ce6bd484065ac345b254de",
+                "url": "https://api.github.com/repos/imarno/php-instance/zipball/65c308bf8dde0bd610eab7fb8e7febf429e3cdc6",
+                "reference": "65c308bf8dde0bd610eab7fb8e7febf429e3cdc6",
                 "shasum": ""
             },
             "require": {
@@ -35,12 +35,12 @@
             ],
             "authors": [
                 {
-                    "name": "arno",
-                    "email": "3178920@qq.com"
+                    "name": "Jordy",
+                    "email": "arno.zheng@gmail.com"
                 }
             ],
             "description": "php instance trait",
-            "time": "2018-05-20T07:05:14+00:00"
+            "time": "2018-12-26T10:37:26+00:00"
         }
     ],
     "packages-dev": [],
@@ -49,6 +49,8 @@
     "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
-    "platform": [],
+    "platform": {
+        "php": ">=5.6"
+    },
     "platform-dev": []
 }

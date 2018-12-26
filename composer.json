@@ -10,12 +10,12 @@
     }
   ],
   "require": {
-    "imarno/php-instance": "*"
+    "php": ">=5.6",
+    "imarno/php-instance": "1.*"
   },
   "autoload": {
     "psr-4": {
-      "Alf\\": "src/",
-      "Ala\\": "demos/"
+      "Alf\\": "src/"
     }
   }
 }
