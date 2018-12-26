@@ -36,6 +36,7 @@ final class Router
             throw new RouterException('uri invalid', RouterException::CODE_INVALID);
         }
 
+        $uri = trim($uri, '/');
         //默认路由
         if (!$uri) {
             return $this->_setDefault();
