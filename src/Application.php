@@ -35,6 +35,7 @@ final class Application
     ];
 
     private $isInitialized = false;
+    private $controllerPath;
 
     /**
      * @param $rootPath
@@ -86,14 +87,14 @@ final class Application
     private function dispatch()
     {
         $uri = Request::getInstance()->getUri();
-        $controllerPath = Router::getInstance()->route($uri);
+        $this->controllerPath = Router::getInstance()->route($uri);
 
         $fullClassName = sprintf('%s\\Controller\\%s',
             $this->getAppNamespace(),
-            strtr($controllerPath, '/', '\\'));
+            strtr($this->controllerPath, '/', '\\'));
         $controllerFile = sprintf('%s/Controller/%s.php',
             $this->getAppPath(),
-            $controllerPath);
+            $this->controllerPath);
 
         if (!is_file($controllerFile) || !class_exists($fullClassName)) {
             throw new ApplicationException('Controller is not exists.',
@@ -139,6 +140,11 @@ final class Application
     public function getAppPath()
     {
         return $this->rootPath . DIRECTORY_SEPARATOR . 'Application' . DIRECTORY_SEPARATOR . $this->appName;
+    }
+
+    public function getControllerPath()
+    {
+        return $this->controllerPath;
     }
 
     /**
