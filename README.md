@@ -12,7 +12,7 @@ In composer.json
 ```composer.json
 ...
   "require": {
-    "imarno/php-framework": "1.*"
+    "imarno/php-framework": "1.3.*"
   },
   "autoload": {
     "psr-4": {
@@ -29,8 +29,8 @@ src
        |- AppName
            |- Controller
                 |- Index.php
-           |- view
-                |- index.php
+           |- View
+                |- Index.phtml
            |- Controller.php
            |- Error.php
   |- public
