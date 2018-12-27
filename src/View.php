@@ -38,7 +38,7 @@ class View
     {
         if (!$tpl) {
             $Request = Request::getInstance();
-            $tpl = $Request->getUri();
+            $tpl = $this->_getTpl($Request->getUri());
         }
         $tplFile = $this->_getTplFile($tpl);
         $this->data && extract($this->data);
@@ -57,5 +57,14 @@ class View
         $path = $app->getAppPath() . DIRECTORY_SEPARATOR . 'view';
         $tpl = trim($tpl, '/\\');
         return $path . DIRECTORY_SEPARATOR . $tpl . $this->ext;
+    }
+
+    protected function _getTpl($tpl)
+    {
+        if (!$tpl || $tpl == '/') {
+            return 'index';
+        } else {
+            return trim($tpl, '/');
+        }
     }
 }
