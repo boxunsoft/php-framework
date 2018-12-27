@@ -11,6 +11,7 @@ namespace Alf;
 use Alf\Exception\ApplicationException;
 use Alf\Exception\ErrorException;
 use Alf\Exception\ExitException;
+use Alf\Exception\NotFoundException;
 use Alf\Exception\ShutdownException;
 use Alf\Exception\WarningException;
 use Ali\InstanceTrait;
@@ -83,6 +84,7 @@ final class Application
     /**
      * @throws ApplicationException
      * @throws Exception\RouterException
+     * @throws NotFoundException
      */
     private function dispatch()
     {
@@ -97,8 +99,7 @@ final class Application
             $this->controllerPath);
 
         if (!is_file($controllerFile) || !class_exists($fullClassName)) {
-            throw new ApplicationException('Controller is not exists.',
-                ApplicationException::CODE_CONTROLLER_NOT_EXISTS);
+            throw new NotFoundException();
         }
 
         $controller = new $fullClassName();
