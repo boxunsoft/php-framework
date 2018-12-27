@@ -21,7 +21,8 @@ class View
     use InstanceTrait;
 
     private $data;
-    protected $ext = '.php';
+    protected $rootPath;
+    protected $extensionName = '.phtml';
 
     public function escape(&$value, $default = '')
     {
@@ -37,8 +38,7 @@ class View
     public function render($tpl = null)
     {
         if (!$tpl) {
-            $Request = Request::getInstance();
-            $tpl = $this->_getTpl($Request->getUri());
+            $tpl = $this->_getDefaultTpl();
         }
         $tplFile = $this->_getTplFile($tpl);
         $this->data && extract($this->data);
@@ -51,20 +51,37 @@ class View
         return $this->_getTplFile($tpl);
     }
 
-    protected function _getTplFile($tpl)
+    public function setRootPath($path)
     {
-        $app = Application::getInstance();
-        $path = $app->getAppPath() . DIRECTORY_SEPARATOR . 'view';
-        $tpl = trim($tpl, '/\\');
-        return $path . DIRECTORY_SEPARATOR . $tpl . $this->ext;
+        $this->rootPath = $path;
+        return $this;
     }
 
-    protected function _getTpl($tpl)
+    public function getRootPath()
     {
-        if (!$tpl || $tpl == '/') {
-            return 'index';
-        } else {
-            return trim($tpl, '/');
+        if ($this->rootPath) {
+            return $this->rootPath;
         }
+        $App = Application::getInstance();
+        $path = $App->getAppPath() . DIRECTORY_SEPARATOR . 'View';
+        return $path;
+    }
+
+    public function setExtensionName($name)
+    {
+        $this->extensionName = $name;
+    }
+
+    protected function _getTplFile($tpl)
+    {
+        $path = $this->getRootPath();
+        $tpl = trim($tpl, '/\\');
+        return $path . DIRECTORY_SEPARATOR . $tpl . $this->extensionName;
+    }
+
+    protected function _getDefaultTpl()
+    {
+        $App = Application::getInstance();
+        return $App->getControllerPath();
     }
 }
