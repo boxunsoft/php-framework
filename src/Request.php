@@ -36,6 +36,8 @@ class Request
     private $userAgent;
     private $referer;
 
+    private $isHttps = null;
+
     /**
      * URL的原始路径
      *
@@ -201,15 +203,6 @@ class Request
         return $this->serverName;
     }
 
-    public function getServerPort()
-    {
-        if ($this->serverPort) {
-            return $this->serverPort;
-        }
-        $this->serverPort = isset($_SERVER['SERVER_PORT']) ? $_SERVER['SERVER_PORT'] : '';
-        return $this->serverPort;
-    }
-
     public function getServerIp()
     {
         if ($this->serverIp) {
@@ -222,6 +215,15 @@ class Request
             $this->serverIp = gethostbyname(gethostname());
         }
         return $this->serverIp;
+    }
+
+    public function getServerPort()
+    {
+        if ($this->serverPort) {
+            return $this->serverPort;
+        }
+        $this->serverPort = isset($_SERVER['SERVER_PORT']) ? $_SERVER['SERVER_PORT'] : '';
+        return $this->serverPort;
     }
 
     public function getClientIp()
@@ -247,6 +249,11 @@ class Request
         return $this->clientIp;
     }
 
+    public function getClientPort()
+    {
+        return isset($_SERVER['REMOTE_PORT']) ? $_SERVER['REMOTE_PORT'] : 0;
+    }
+
     public function getUserAgent()
     {
         if ($this->userAgent) {
@@ -268,6 +275,23 @@ class Request
     public function isCli()
     {
         return PHP_SAPI == 'cli';
+    }
+
+    public function isHttps()
+    {
+        if ($this->isHttps !== null) {
+            return $this->isHttps;
+        }
+        if (isset($_SERVER['HTTPS']) && ('1' == $_SERVER['HTTPS'] || 'on' == strtolower($_SERVER['HTTPS']))) {
+            $this->isHttps = true;
+        } elseif (isset($_SERVER['REQUEST_SCHEME']) && 'https' == $_SERVER['REQUEST_SCHEME']) {
+            $this->isHttps = true;
+        } elseif (isset($_SERVER['SERVER_PORT']) && '443' == $_SERVER['SERVER_PORT']) {
+            $this->isHttps = true;
+        } elseif (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && 'https' == $_SERVER['HTTP_X_FORWARDED_PROTO']) {
+            $this->isHttps = false;
+        }
+        return $this->isHttps;
     }
 
     public function isPost()
