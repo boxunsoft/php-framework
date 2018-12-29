@@ -12,7 +12,7 @@ In composer.json
 ```composer.json
 ...
   "require": {
-    "imarno/php-framework": "1.3.*"
+    "boxunsoft/php-framework": "1.3.*"
   },
   "autoload": {
     "psr-4": {
