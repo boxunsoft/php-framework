@@ -13,11 +13,11 @@ use Alf\Request;
 $Router = Router::getInstance();
 $Request = Request::getInstance();
 
-echo $Request->getRequestUri().PHP_EOL;
-print_r($Request->getParams());
+echo $Request->requestUri().PHP_EOL;
+print_r($Request->params());
 echo PHP_EOL;
 
-$uri = $Request->getUri();
+$uri = $Request->uri();
 var_dump($uri);
 echo $Router->route($uri);
 echo PHP_EOL;

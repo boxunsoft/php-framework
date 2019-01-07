@@ -9,7 +9,7 @@ class Bar extends Controller
     public function main()
     {
         echo 'Bar::main()'.PHP_EOL;
-        print_r($this->request()->getParams());
+        print_r($this->request()->params());
         echo PHP_EOL;
     }
 }

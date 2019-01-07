@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e08f27d8466d95ce1d24b256b7a5e57f",
+    "content-hash": "a7b206330661d877b11135c625ca14e2",
     "packages": [
         {
-            "name": "imarno/php-instance",
-            "version": "v1.0.2",
+            "name": "boxunsoft/php-instance",
+            "version": "v1.1.0",
             "source": {
                 "type": "git",
-                "url": "https://github.com/imarno/php-instance.git",
-                "reference": "65c308bf8dde0bd610eab7fb8e7febf429e3cdc6"
+                "url": "https://github.com/boxunsoft/php-instance.git",
+                "reference": "6a4c4622da3000e97a792a9f728d3922a8eeb645"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/imarno/php-instance/zipball/65c308bf8dde0bd610eab7fb8e7febf429e3cdc6",
-                "reference": "65c308bf8dde0bd610eab7fb8e7febf429e3cdc6",
+                "url": "https://api.github.com/repos/boxunsoft/php-instance/zipball/6a4c4622da3000e97a792a9f728d3922a8eeb645",
+                "reference": "6a4c4622da3000e97a792a9f728d3922a8eeb645",
                 "shasum": ""
             },
             "require": {
@@ -40,7 +40,47 @@
                 }
             ],
             "description": "php instance trait",
-            "time": "2018-12-26T10:37:26+00:00"
+            "time": "2018-12-29T02:25:36+00:00"
+        },
+        {
+            "name": "boxunsoft/php-library",
+            "version": "v0.0.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/boxunsoft/php-library.git",
+                "reference": "b7d11689e6180902406d75796b6d681cf4d69885"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/boxunsoft/php-library/zipball/b7d11689e6180902406d75796b6d681cf4d69885",
+                "reference": "b7d11689e6180902406d75796b6d681cf4d69885",
+                "shasum": ""
+            },
+            "require": {
+                "boxunsoft/php-instance": "1.1.*",
+                "php": ">=7"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "5.7.*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "All\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Jordy",
+                    "email": "arno.zheng@gmail.com"
+                }
+            ],
+            "description": "PHP Library",
+            "time": "2019-01-07T02:33:11+00:00"
         }
     ],
     "packages-dev": [],
@@ -50,7 +90,7 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": ">=5.6"
+        "php": ">=7"
     },
     "platform-dev": []
 }

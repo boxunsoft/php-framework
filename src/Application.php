@@ -43,6 +43,7 @@ final class Application
      * @param $appName
      * @throws ApplicationException
      * @throws Exception\RouterException
+     * @throws NotFoundException
      */
     public function startup($rootPath, $appName)
     {
@@ -88,7 +89,7 @@ final class Application
      */
     private function dispatch()
     {
-        $uri = Request::getInstance()->getUri();
+        $uri = Request::getInstance()->uri();
         $this->controllerPath = Router::getInstance()->route($uri);
 
         $fullClassName = sprintf('%s\\Controller\\%s',
@@ -159,7 +160,7 @@ final class Application
             return true;
         }
         $request = Request::getInstance();
-        $suffix = $request->getSuffix();
+        $suffix = $request->suffix();
         return in_array($suffix, $this->suffixs);
     }
 
