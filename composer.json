@@ -2,7 +2,7 @@
   "name": "boxunsoft/php-framework",
   "description": "Simple Web MVC Framework",
   "type": "library",
-  "license": "MIT",
+  "license": "LGPL-3.0",
   "authors": [
     {
       "name": "Jordy",
