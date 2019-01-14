@@ -15,6 +15,7 @@ use Alf\Exception\NotFoundException;
 use Alf\Exception\ShutdownException;
 use Alf\Exception\WarningException;
 use Ali\InstanceTrait;
+use All\Config;
 
 final class Application
 {
@@ -28,6 +29,9 @@ final class Application
     private $appName;
     private $baseAppNamespace = 'Ala';
     private $environment;
+    private $config;
+    private $env;
+    private $envPath;
 
     private $suffixs = [];
 
@@ -160,6 +164,54 @@ final class Application
     public function getControllerPath()
     {
         return $this->controllerPath;
+    }
+
+    /**
+     * @param $key
+     * @return array|mixed|null
+     * @throws \Exception
+     */
+    public function config($key)
+    {
+        if (!$this->config) {
+            $this->config = new Config();
+            $this->config->setPath($this->rootPath . DIRECTORY_SEPARATOR . 'config');
+        }
+        return $this->config->get($key);
+    }
+
+    /**
+     * @param $key
+     * @return mixed
+     * @throws \Exception
+     */
+    public function env($key)
+    {
+        if (!$this->env) {
+            $this->env = new Config();
+            $this->env->setPath($this->getEnvPath());
+        }
+        return $this->env($key);
+    }
+
+    /**
+     * @return mixed
+     * @throws \Exception
+     */
+    private function getEnvPath()
+    {
+        if ($this->envPath) {
+            return $this->envPath;
+        }
+
+        $environment = $this->getEnvironment();
+        $envPathConfig = $this->config('app.env_path');
+        if (array_key_exists($environment, $envPathConfig)) {
+            $this->envPath = $envPathConfig[$environment];
+        } else {
+            $this->envPath = $this->rootPath . DIRECTORY_SEPARATOR . 'env' . DIRECTORY_SEPARATOR . $environment;
+        }
+        return $this->rootPath;
     }
 
     /**
