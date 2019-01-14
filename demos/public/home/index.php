@@ -15,7 +15,7 @@ $loader = require dirname($rootPath) . '/vendor/autoload.php';
 
 /*----- test start ------*/
 //App suggests adding composer.json
-$loader->addPsr4('Ala\\', $rootPath);
+$loader->addPsr4('Ala\\', $rootPath . DIRECTORY_SEPARATOR . 'src');
 /*----- test end ------*/
 
 $suffixs = ['.json'];

@@ -20,9 +20,14 @@ final class Application
 {
     use InstanceTrait;
 
+    const ENV_DEVELOP = 'develop';
+    const ENV_TEST = 'test';
+    const ENV_PRODUCT = 'product';
+
     private $rootPath;
     private $appName;
     private $baseAppNamespace = 'Ala';
+    private $environment;
 
     private $suffixs = [];
 
@@ -141,7 +146,15 @@ final class Application
 
     public function getAppPath()
     {
-        return $this->rootPath . DIRECTORY_SEPARATOR . 'Application' . DIRECTORY_SEPARATOR . $this->appName;
+        return $this->rootPath . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'Application' . DIRECTORY_SEPARATOR . $this->appName;
+    }
+
+    public function getEnvironment()
+    {
+        if ($this->environment) {
+            return $this->environment;
+        }
+        return $this->environment = getenv('ALF_ENV') ? getenv('ALF_ENV') : 'product';
     }
 
     public function getControllerPath()
