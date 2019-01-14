@@ -158,7 +158,7 @@ final class Application
         if ($this->environment) {
             return $this->environment;
         }
-        return $this->environment = getenv('ALF_ENV') ? getenv('ALF_ENV') : 'product';
+        return $this->environment = getenv('ALF_ENV') ? getenv('ALF_ENV') : self::ENV_PRODUCT;
     }
 
     public function getControllerPath()
@@ -191,7 +191,7 @@ final class Application
             $this->env = new Config();
             $this->env->setPath($this->getEnvPath());
         }
-        return $this->env($key);
+        return $this->env->get($key);
     }
 
     /**
