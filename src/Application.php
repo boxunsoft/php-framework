@@ -211,7 +211,7 @@ final class Application
         } else {
             $this->envPath = $this->rootPath . DIRECTORY_SEPARATOR . 'env' . DIRECTORY_SEPARATOR . $environment;
         }
-        return $this->rootPath;
+        return $this->envPath;
     }
 
     /**
