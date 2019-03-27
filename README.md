@@ -41,8 +41,8 @@ src
 > path name and file name must be lower
 
 ```php
-$rootPath = dirname(dirname(__DIR__));
-require dirname($rootPath) . '/vendor/autoload.php';
+$rootPath = dirname(dirname(dirname(__DIR__)));
+require $rootPath . '/vendor/autoload.php';
 
 $app = Alf\Application::getInstance();
 $app->main($rootPath, 'AppName');

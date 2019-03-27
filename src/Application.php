@@ -14,8 +14,8 @@ use Alf\Exception\ExitException;
 use Alf\Exception\NotFoundException;
 use Alf\Exception\ShutdownException;
 use Alf\Exception\WarningException;
+use Alf\Request\Config;
 use Ali\InstanceTrait;
-use All\Config;
 
 final class Application
 {
@@ -23,6 +23,8 @@ final class Application
 
     const ENV_DEVELOP = 'develop';
     const ENV_TEST = 'test';
+    const ENV_PRE = 'pre';
+    const ENV_BETA = 'beta';
     const ENV_PRODUCT = 'product';
 
     private $rootPath;
@@ -175,7 +177,7 @@ final class Application
     {
         if (!$this->config) {
             $this->config = new Config();
-            $this->config->setPath($this->rootPath . DIRECTORY_SEPARATOR . 'config');
+            $this->config->setPath($this->getRootPath() . DIRECTORY_SEPARATOR . 'config');
         }
         return $this->config->get($key);
     }
