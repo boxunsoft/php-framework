@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a8c148e0638c6cfe9a4f8febfbfb7493",
+    "content-hash": "1078c024a81383907329ee79bb2fddc6",
     "packages": [
         {
             "name": "boxunsoft/php-instance",
@@ -41,54 +41,12 @@
             ],
             "description": "php instance trait",
             "time": "2018-12-29T02:25:36+00:00"
-        },
-        {
-            "name": "boxunsoft/php-library",
-            "version": "v0.0.4-beta",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/boxunsoft/php-library.git",
-                "reference": "0a63a71e11d835e437098d34fb893020265b893d"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/boxunsoft/php-library/zipball/0a63a71e11d835e437098d34fb893020265b893d",
-                "reference": "0a63a71e11d835e437098d34fb893020265b893d",
-                "shasum": ""
-            },
-            "require": {
-                "boxunsoft/php-instance": "1.1.*",
-                "php": ">=7"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "7.5.*"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "All\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "LGPL-3.0"
-            ],
-            "authors": [
-                {
-                    "name": "Jordy",
-                    "email": "arno.zheng@gmail.com"
-                }
-            ],
-            "description": "PHP Library",
-            "time": "2019-01-15T06:23:03+00:00"
         }
     ],
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "boxunsoft/php-library": 10
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {

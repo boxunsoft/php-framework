@@ -54,7 +54,7 @@ final class Application
      * @throws Exception\RouterException
      * @throws NotFoundException
      */
-    public function startup($rootPath, $appName)
+    public function main($rootPath, $appName)
     {
         if ($this->isInitialized) {
             return;

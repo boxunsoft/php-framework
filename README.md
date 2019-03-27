@@ -4,15 +4,13 @@ A simple MVC framework with PHP
 
 ## Usage
 
-See demos or Documents
-
-## Install
+### Install
 
 In composer.json
 ```composer.json
 ...
   "require": {
-    "boxunsoft/php-framework": "1.3.*"
+    "boxunsoft/php-framework": "2.0.*"
   },
   "autoload": {
     "psr-4": {
@@ -22,7 +20,7 @@ In composer.json
 ...
 ```
 
-## App Directorys
+### App Directorys
 ```dir
 src
   |- Application
@@ -31,13 +29,41 @@ src
                 |- Index.php
            |- View
                 |- Index.phtml
-           |- Controller.php
-           |- Error.php
   |- public
        |- appname
             |- index.php
   
   
+```
+
+#### public/appname/index.php
+
+> path name and file name must be lower
+
+```php
+$rootPath = dirname(dirname(__DIR__));
+require dirname($rootPath) . '/vendor/autoload.php';
+
+$app = Alf\Application::getInstance();
+$app->main($rootPath, 'AppName');
+```
+
+#### Application/AppName/Controller/Index.php
+
+```php
+namespace Ala\Application\AppName\Controller;
+
+class Index
+{
+    public function main()
+    {
+        $response = [
+            'name' => 'index',
+            'message' => 'Index::main()'
+        ];
+        $this->response()->success($response);
+    }
+}
 ```
 
 ## Documents
