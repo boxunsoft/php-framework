@@ -35,6 +35,10 @@ class View
         return $this;
     }
 
+    /**
+     * @param null $tpl
+     * @throws \Exception
+     */
     public function render($tpl = null)
     {
         if (!$tpl) {
@@ -79,9 +83,12 @@ class View
         return $path . DIRECTORY_SEPARATOR . $tpl . $this->extensionName;
     }
 
+    /**
+     * @return string
+     * @throws \Exception
+     */
     protected function _getDefaultTpl()
     {
-        $App = Application::getInstance();
-        return $App->getControllerPath();
+        return Application::getInstance()->getControllerPath();
     }
 }

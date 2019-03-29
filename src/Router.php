@@ -8,7 +8,6 @@
 
 namespace Alf;
 
-use Alf\Exception\RouterException;
 use Ali\InstanceTrait;
 
 /**
@@ -28,12 +27,12 @@ final class Router
      *
      * @param string $uri
      * @return string
-     * @throws RouterException
+     * @throws \Exception
      */
     public function route($uri)
     {
         if (preg_match('/[^a-z\/_]+/i', $uri)) {
-            throw new RouterException('uri invalid', RouterException::CODE_INVALID);
+            throw new \Exception('Bad Request', HttpCode::BAD_REQUEST);
         }
 
         $uri = trim($uri, '/');
@@ -42,9 +41,6 @@ final class Router
             return $this->_setDefault();
         }
         $uriArr = array_filter(explode('/', $uri));
-        if (count($uriArr) == 1) {
-            return $this->_setPath($uriArr[0]);
-        }
         $pathArr = [];
         foreach ($uriArr as $word) {
             $wordArr = array_filter(explode('_', $word));
@@ -58,12 +54,12 @@ final class Router
      * 获取控制器路径
      *
      * @return string
-     * @throws RouterException
+     * @throws \Exception
      */
     public function getPath()
     {
         if (!$this->path) {
-            throw new RouterException('must be routed first, please run route($uri)', RouterException::CODE_NOT_ROUTED);
+            throw new \Exception('Uri must be routed first, please run Router::route($uri)', HttpCode::INTERNAL_SERVER_ERROR);
         }
         return $this->path;
     }

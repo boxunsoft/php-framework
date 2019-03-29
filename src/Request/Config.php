@@ -38,6 +38,10 @@ class Config
         return $this;
     }
 
+    /**
+     * @return mixed
+     * @throws WarningException
+     */
     public function getPath()
     {
         if (!$this->path) {
@@ -67,6 +71,11 @@ class Config
         return $data;
     }
 
+    /**
+     * @param $file
+     * @return array|mixed|null
+     * @throws WarningException
+     */
     private function getData($file)
     {
         if (isset($this->data[$file])) {

@@ -8,7 +8,6 @@
 
 namespace Alf;
 
-use Alf\Exception\ApplicationException;
 use Alf\Exception\ErrorException;
 use Alf\Exception\ExitException;
 use Alf\Exception\NotFoundException;
@@ -47,14 +46,12 @@ final class Application
     ];
 
     private $isInitialized = false;
-    private $controllerPath;
 
     /**
      * @param $rootPath
      * @param $appName
-     * @throws ApplicationException
-     * @throws Exception\RouterException
      * @throws NotFoundException
+     * @throws \Exception
      */
     public function main($rootPath, $appName)
     {
@@ -63,70 +60,88 @@ final class Application
         }
 
         $this->isInitialized = true;
-        $this->_init($rootPath, $appName);
+        $this->initialize($rootPath, $appName);
         $this->dispatch();
     }
 
     /**
+     * initialize from $env/app.php
+     *
      * @param $rootPath
      * @param $appName
-     * @throws ApplicationException
+     * @throws \Exception
      */
-    private function _init($rootPath, $appName)
+    private function initialize($rootPath, $appName)
     {
-        // 设置错误显示
-        error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING & ~E_STRICT);
-        ini_set('display_errors', false);
-        //设置时区
-        date_default_timezone_set('Asia/Shanghai');
-        header('Content-type:text/html;charset=utf-8');
-
-        register_shutdown_function([$this, '_shutdownHandler']);
-        set_exception_handler([$this, '_exceptionHandler']);
-        set_error_handler([$this, '_errorHandler']);
-
         $this->rootPath = $rootPath;
         $this->appName = $appName;
 
-        if (!$this->_allowSuffix()) {
-            throw new ApplicationException('Unpermitted extensions', ApplicationException::CODE_NOT_ALLOW_EXTENSION);
-        }
+        $config = $this->env('app');
+        // 设置错误显示
+        error_reporting(isset($config['error_reporting']) ? $config['error_reporting'] : E_ALL & ~E_NOTICE & ~E_WARNING & ~E_STRICT);
+        ini_set('display_errors', isset($config['display_errors']) ? boolval($config['display_errors']) : false);
+
+        // 设置时区
+        date_default_timezone_set(isset($config['timezone']) ? $config['timezone'] : 'Asia/Shanghai');
+        header('Content-type:text/html;charset=utf-8');
+
+        // Capture errors after the program runs
+        register_shutdown_function([$this, '_shutdownHandler']);
+        // Capture Exception thrown errors
+        set_exception_handler([$this, '_exceptionHandler']);
+        // Catching grammatical errors
+        set_error_handler([$this, '_errorHandler']);
+
+        $this->validateSuffix();
     }
 
     /**
-     * @throws ApplicationException
-     * @throws Exception\RouterException
+     * @throws \Exception
      * @throws NotFoundException
      */
     private function dispatch()
     {
         $uri = Request::getInstance()->uri();
-        $this->controllerPath = Router::getInstance()->route($uri);
+        Router::getInstance()->route($uri);
 
-        $fullClassName = sprintf('%s\\Controller\\%s',
-            $this->getAppNamespace(),
-            strtr($this->controllerPath, '/', '\\'));
-        $controllerFile = sprintf('%s/Controller/%s.php',
-            $this->getAppPath(),
-            $this->controllerPath);
+        $fullClassName = $this->getFullClassName();
+        $controllerFile = $this->getFullFilePath();
 
         if (!is_file($controllerFile) || !class_exists($fullClassName)) {
-            throw new NotFoundException();
+            throw new NotFoundException('Not Found', HttpCode::NOT_FOUND);
         }
 
         $controller = new $fullClassName();
         if (!method_exists($controller, 'main') || !is_callable([$controller, 'main'])) {
-            throw new ApplicationException('Method main() is not exists.',
-                ApplicationException::CODE_METHOD_NOT_EXISTS);
+            throw new \Exception('Method main() is not exists.', HttpCode::METHOD_NOT_ALLOWED);
         }
 
-        if (method_exists($controller, 'before')) {
-            $controller->before();
+        if (method_exists($controller, 'before') && is_callable($controller, 'before')) {
+            call_user_func([$controller, 'before']);
         }
-        $controller->main();
-        if (method_exists($controller, 'after')) {
-            $controller->after();
+        call_user_func([$controller, 'main']);
+        if (method_exists($controller, 'after') && is_callable($controller, 'after')) {
+            call_user_func([$controller, 'after']);
         }
+    }
+
+    /**
+     * @return string
+     * @throws \Exception
+     */
+    private function getFullClassName()
+    {
+        return sprintf('%s\\Controller\\%s', $this->getAppNamespace(),
+            strtr(Router::getInstance()->getPath(), '/', '\\'));
+    }
+
+    /**
+     * @return string
+     * @throws \Exception
+     */
+    private function getFullFilePath()
+    {
+        return sprintf('%s/Controller/%s.php', $this->getAppPath(), Router::getInstance()->getPath());
     }
 
     public function setSuffixs(array $suffixs)
@@ -163,9 +178,13 @@ final class Application
         return $this->environment = getenv('ALF_ENV') ? getenv('ALF_ENV') : self::ENV_PRODUCT;
     }
 
+    /**
+     * @return string
+     * @throws \Exception
+     */
     public function getControllerPath()
     {
-        return $this->controllerPath;
+        return Router::getInstance()->getPath();
     }
 
     /**
@@ -217,18 +236,17 @@ final class Application
     }
 
     /**
-     * 是否被允许的URL扩展名后缀
-     *
-     * @return bool
+     * @throws \Exception
      */
-    protected function _allowSuffix()
+    protected function validateSuffix()
     {
-        if (!$this->suffixs) {
-            return true;
+        if ($this->suffixs) {
+            $request = Request::getInstance();
+            $suffix = $request->suffix();
+            if (!($suffix && in_array($suffix, $this->suffixs))) {
+                throw new \Exception('Unsupported extension', HttpCode::REQUESTED_RANGE_NOT_SATISFIABLE);
+            }
         }
-        $request = Request::getInstance();
-        $suffix = $request->suffix();
-        return in_array($suffix, $this->suffixs);
     }
 
     public function getErrorClassName()
@@ -251,7 +269,7 @@ final class Application
         if (class_exists($fullErrorClassName)) {
             $obj = new $fullErrorClassName();
             if (method_exists($obj, 'main')) {
-                $obj->main($e);
+                call_user_func([$obj, 'main'], $e);
             } else {
                 echo $message;
             }
