@@ -116,11 +116,11 @@ final class Application
             throw new \Exception('Method main() is not exists.', HttpCode::METHOD_NOT_ALLOWED);
         }
 
-        if (method_exists($controller, 'before') && is_callable($controller, 'before')) {
+        if (method_exists($controller, 'before') && is_callable([$controller, 'before'])) {
             call_user_func([$controller, 'before']);
         }
         call_user_func([$controller, 'main']);
-        if (method_exists($controller, 'after') && is_callable($controller, 'after')) {
+        if (method_exists($controller, 'after') && is_callable([$controller, 'after'])) {
             call_user_func([$controller, 'after']);
         }
     }
