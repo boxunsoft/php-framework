@@ -227,7 +227,7 @@ final class Application
 
         $environment = $this->getEnvironment();
         $envPathConfig = $this->config('app.env_path');
-        if (array_key_exists($environment, $envPathConfig)) {
+        if ($envPathConfig && array_key_exists($environment, $envPathConfig)) {
             $this->envPath = $envPathConfig[$environment];
         } else {
             $this->envPath = $this->rootPath . DIRECTORY_SEPARATOR . 'env' . DIRECTORY_SEPARATOR . $environment;
