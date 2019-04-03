@@ -10,11 +10,9 @@ namespace Alf\Request;
 
 class Cookie
 {
-    public function get($key, $default = null)
+    public function get($key, $default = null, $prefix = '')
     {
-        if (!$key) {
-            return $_COOKIE;
-        }
+        $key = $prefix . $key;
         return isset($_COOKIE[$key]) ? $_COOKIE[$key] : $default;
     }
 

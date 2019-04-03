@@ -19,12 +19,12 @@ class Session
      * @return null
      * @throws WarningException
      */
-    public function get($key, $default = null, $prefix = 'HTTP_')
+    public function get($key, $default = null, $prefix = '')
     {
         if (session_status() != PHP_SESSION_ACTIVE) {
             throw new WarningException('Session cannot be actived');
         }
-        $key = $prefix . strtoupper($key);
+        $key = $prefix . $key;
         return isset($_SESSION[$key]) ? $_SESSION[$key] : $default;
     }
 
@@ -34,12 +34,12 @@ class Session
      * @param string $prefix
      * @throws WarningException
      */
-    public function set($key, $value, $prefix = 'HTTP_')
+    public function set($key, $value, $prefix = '')
     {
         if (session_status() != PHP_SESSION_ACTIVE) {
             throw new WarningException('Session cannot be actived');
         }
-        $key = $prefix . strtoupper($key);
+        $key = $prefix . $key;
         $_SESSION[$key] = $value;
     }
 }

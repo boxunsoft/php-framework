@@ -152,6 +152,9 @@ class Request
         return isset($_POST[$key]) ? $_POST[$key] : $default;
     }
 
+    /**
+     * @return Cookie
+     */
     public function cookie()
     {
         if ($this->cookie !== null) {
@@ -160,6 +163,9 @@ class Request
         return $this->cookie = new Cookie();
     }
 
+    /**
+     * @return Session
+     */
     public function session()
     {
         if ($this->session !== null) {
@@ -168,6 +174,9 @@ class Request
         return $this->session = new Session();
     }
 
+    /**
+     * @return Header
+     */
     public function header()
     {
         if ($this->header !== null) {
@@ -176,6 +185,9 @@ class Request
         return $this->header = new Header();
     }
 
+    /**
+     * @return File
+     */
     public function file()
     {
         if ($this->file !== null) {
@@ -189,7 +201,7 @@ class Request
         if ($this->method) {
             return $this->method;
         }
-        $this->method = $this->isCli() ? 'GET' : strtoupper($_SERVER['REQUEST_METHOD']);
+        $this->method = $this->isCli() ? 'CLI' : strtoupper($_SERVER['REQUEST_METHOD']);
         return $this->method;
     }
 
@@ -253,7 +265,7 @@ class Request
         if ($this->userAgent) {
             return $this->userAgent;
         }
-        $this->userAgent = $this->header()->get('user_agent', '');
+        $this->userAgent = $this->header()->get('USER_AGENT', '');
         return $this->userAgent;
     }
 
@@ -262,7 +274,7 @@ class Request
         if ($this->referer) {
             return $this->referer;
         }
-        $this->referer = $this->header()->get('referer', '');
+        $this->referer = $this->header()->get('REFERER', '');
         return $this->referer;
     }
 
@@ -284,6 +296,11 @@ class Request
     public function isPut()
     {
         return 'PUT' == $this->method();
+    }
+
+    public function isPatch()
+    {
+        return 'PATCH' == $this->method();
     }
 
     public function isDelete()
@@ -308,7 +325,7 @@ class Request
      */
     public function isXmlHttpRequest()
     {
-        if ('XMLHttpRequest' == $this->header()->get('x_requested_with')) {
+        if ('XMLHttpRequest' == $this->header()->get('X_REQUESTED_WITH')) {
             return true;
         } else {
             return false;
