@@ -61,7 +61,7 @@ final class Application
 
         $this->isInitialized = true;
         $this->initialize($rootPath, $appName);
-        $this->dispatch();
+        $this->bootstrap();
     }
 
     /**
@@ -99,10 +99,12 @@ final class Application
      * @throws \Exception
      * @throws NotFoundException
      */
-    private function dispatch()
+    private function bootstrap()
     {
         $uri = Request::getInstance()->uri();
+        // before route
         Router::getInstance()->route($uri);
+        // after route
 
         $fullClassName = $this->getFullClassName();
         $controllerFile = $this->getFullFilePath();

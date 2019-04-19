@@ -21,6 +21,8 @@ final class Router
     use InstanceTrait;
 
     private $path;
+    private $config;
+    private $params = [];
 
     /**
      * 路由
@@ -31,12 +33,17 @@ final class Router
      */
     public function route($uri)
     {
-        if (preg_match('/[^a-z\/_]+/i', $uri)) {
+        if (preg_match('/[^a-z0-9\/_]+/i', $uri)) {
             throw new \Exception('Bad Request', HttpCode::BAD_REQUEST);
         }
 
         $uri = trim($uri, '/');
         //默认路由
+        if (!$uri) {
+            return $this->_setDefault();
+        }
+        list($uri, $this->params) = $this->_parseUri($uri);
+        $uri = trim($uri, '/');
         if (!$uri) {
             return $this->_setDefault();
         }
@@ -59,9 +66,15 @@ final class Router
     public function getPath()
     {
         if (!$this->path) {
-            throw new \Exception('Uri must be routed first, please run Router::route($uri)', HttpCode::INTERNAL_SERVER_ERROR);
+            throw new \Exception('Uri must be routed first, please run Router::route($uri)',
+                HttpCode::INTERNAL_SERVER_ERROR);
         }
         return $this->path;
+    }
+
+    public function getParams()
+    {
+        return $this->params;
     }
 
     /**
@@ -85,5 +98,56 @@ final class Router
     {
         $this->path = 'Index';
         return $this->path;
+    }
+
+    protected function _loadConfig()
+    {
+        if (is_null($this->config)) {
+            $config = Application::getInstance()->config('router');
+            $this->setConfig($config);
+        }
+    }
+
+    public function setConfig($config)
+    {
+        $this->config = $config ?? [];
+        return $this;
+    }
+
+    protected function _parseUri($uri)
+    {
+        $this->_loadConfig();
+        if ($this->config) {
+            return $this->_parseParam($uri);
+        } else {
+            return [$uri, []];
+        }
+    }
+
+    protected function _parseParam($uri)
+    {
+        $params = [];
+        $routedUri = $uri;
+        foreach ($this->config as $router) {
+            if (!preg_match_all('/:[a-z0-9_]+/i', $router, $matches)) {
+                continue;
+            }
+            $paramNames = [];
+            $regexUri = $router;
+            foreach ($matches[0] as $m) {
+                $regexUri = str_replace($m, '([a-zA-Z0-9_]+)', $regexUri);
+                $paramNames[] = substr($m, 1);
+            }
+            if (!preg_match('#^' . trim($regexUri, '/') . '$#i', $uri, $matches)) {
+                unset($paramNames);
+                continue;
+            }
+            foreach ($paramNames as $key => $field) {
+                $params[$field] = $matches[$key + 1] ?? '';
+            }
+            $routedUri = preg_replace('/\/:[a-z0-9_]+/i', '', $router);
+            break;
+        }
+        return [$routedUri, $params];
     }
 }

@@ -103,20 +103,28 @@ class Request
         return $this->suffix;
     }
 
+    public function setParams($params)
+    {
+        $this->params = $params;
+        return $params;
+    }
+
     /**
      * CLI模式下参数
      * @return array|mixed
      */
     public function params()
     {
-        if (!$this->isCli()) {
-            return [];
-        }
-        if ($this->params !== null) {
+        if (!is_null($this->params)) {
             return $this->params;
         }
-        $cliParams = $this->_cliParams();
-        $this->params = $cliParams['params'];
+
+        if ($this->isCli()) {
+            $cliParams = $this->_cliParams();
+            $this->params = $cliParams['params'];
+        } else {
+            $this->params = Router::getInstance()->getParams();
+        }
         return $this->params;
     }
 
