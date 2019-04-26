@@ -1,2 +1,2 @@
 <?php
-echo 'ALF';
+echo 'test bin cmd'.PHP_EOL;
