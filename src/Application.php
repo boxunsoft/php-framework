@@ -8,11 +8,7 @@
 
 namespace Alf;
 
-use Alf\Exception\ErrorException;
-use Alf\Exception\ExitException;
 use Alf\Exception\NotFoundException;
-use Alf\Exception\ShutdownException;
-use Alf\Exception\WarningException;
 use Alf\Request\Config;
 use Ali\InstanceTrait;
 
@@ -35,17 +31,11 @@ final class Application
     private $envPath;
 
     private $suffixs = [];
-
-    private $errorCodes = [
-        E_ERROR,
-        E_CORE_ERROR,
-        E_COMPILE_ERROR,
-        E_USER_ERROR,
-        E_PARSE,
-        E_RECOVERABLE_ERROR
-    ];
-
     private $isInitialized = false;
+
+    protected $shutdownHandler;
+    protected $errorHandler;
+    protected $exceptionHandler;
 
     /**
      * @param $rootPath
@@ -85,12 +75,7 @@ final class Application
         date_default_timezone_set(isset($config['timezone']) ? $config['timezone'] : 'Asia/Shanghai');
         header('Content-type:text/html;charset=utf-8');
 
-        // Capture errors after the program runs
-        register_shutdown_function([$this, '_shutdownHandler']);
-        // Capture Exception thrown errors
-        set_exception_handler([$this, '_exceptionHandler']);
-        // Catching grammatical errors
-        set_error_handler([$this, '_errorHandler']);
+        $this->handler();
 
         $this->validateSuffix();
     }
@@ -251,59 +236,113 @@ final class Application
         }
     }
 
-    public function getErrorClassName()
+    protected function handler()
     {
-        return $this->getAppNamespace() . '\\Error';
+        // Capture errors after the program runs
+        if ($this->shutdownHandler && is_callable($this->shutdownHandler)) {
+            register_shutdown_function($this->shutdownHandler);
+        } else {
+            set_error_handler([$this, 'shutdownHandler']);
+        }
+        // Capture Exception thrown errors
+        if ($this->exceptionHandler && is_callable($this->exceptionHandler)) {
+            set_exception_handler($this->exceptionHandler);
+        } else {
+            set_exception_handler([$this, 'exceptionHandler']);
+        }
+        // Catching grammatical errors
+        if ($this->errorHandler && is_callable($this->errorHandler)) {
+            set_error_handler($this->errorHandler);
+        } else {
+            set_error_handler([$this, 'errorHandler']);
+        }
+    }
+
+    public function setShutdownHandler(callable $handler)
+    {
+        $this->shutdownHandler = $handler;
+    }
+
+    public function setErrorHandler(callable $handler)
+    {
+        $this->errorHandler = $handler;
+    }
+
+    public function setExceptionHandler(callable $handler)
+    {
+        $this->exceptionHandler = $handler;
     }
 
     /**
+     * 设置命名空间
+     * @param $namespace
+     */
+    public function setBaseAppNamespace($namespace)
+    {
+        $this->baseAppNamespace = $namespace;
+    }
+
+    /**
+     * 代码抛出错误拦截
      * @param Exception $e
      */
-    public function _exceptionHandler($e)
+    public function exceptionHandler($e)
     {
-        if ($e instanceof ExitException) {
-            return;
-        }
-
+        /*E_ERROR,
+        E_CORE_ERROR,
+        E_COMPILE_ERROR,
+        E_USER_ERROR,
+        E_PARSE,
+        E_RECOVERABLE_ERROR*/
         $message = sprintf('message: %s ( %d ), file: %s ( %d )', $e->getMessage(), $e->getCode(), $e->getFile(),
             $e->getLine());
-        $fullErrorClassName = $this->getErrorClassName();
-        if (class_exists($fullErrorClassName)) {
-            $obj = new $fullErrorClassName();
-            if (method_exists($obj, 'main')) {
-                call_user_func([$obj, 'main'], $e);
-            } else {
-                echo $message;
-            }
+
+        if (isset($_SERVER['X_REQUESTED_WITH']) && 'XMLHttpRequest' == $_SERVER['X_REQUESTED_WITH']) {
+            $response = [
+                'code' => $e->getCode() ? $e->getCode() : HttpCode::INTERNAL_SERVER_ERROR,
+                'msg' => $message,
+                'data' => []
+            ];
+            ob_clean();
+            header('Content-type:application/json;charset=utf-8');
+            //指定JSON_PARTIAL_OUTPUT_ON_ERROR,避免$data中有非utf-8字符导致json编码返回false
+            echo json_encode($response, JSON_PARTIAL_OUTPUT_ON_ERROR);
         } else {
             echo $message;
         }
     }
 
-    public function _errorHandler($errorCode, $errorMessage, $errorFile, $errorLine)
+    /**
+     * 语法错误信息拦截
+     *
+     * @param $errorCode
+     * @param $errorMessage
+     * @param $errorFile
+     * @param $errorLine
+     */
+    public function errorHandler($errorCode, $errorMessage, $errorFile, $errorLine)
     {
         if (!(error_reporting() & $errorCode)) {
             return;
         }
 
-        if (in_array($errorCode, $this->errorCodes)) {
-            $e = new ErrorException($errorMessage, $errorCode);
-        } else {
-            $e = new WarningException($errorMessage, $errorCode);
-        }
+        $e = new \Exception($errorMessage, $errorCode);
         $e->setFile($errorFile);
         $e->setLine($errorLine);
-        $this->_exceptionHandler($e);
+        $this->exceptionHandler($e);
     }
 
-    public function _shutdownHandler()
+    /**
+     * 程序执行结束处理
+     */
+    public function shutdownHandler()
     {
         $error = error_get_last();
         if ($error) {
-            $e = new ShutdownException($error['message'], $error['type']);
+            $e = new \Exception($error['message'], $error['type']);
             $e->setFile($error['file']);
             $e->setLine($error['line']);
-            $this->_exceptionHandler($e);
+            $this->exceptionHandler($e);
         }
     }
 }
