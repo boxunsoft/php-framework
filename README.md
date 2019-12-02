@@ -1,6 +1,6 @@
 # php-framework
 
-A simple MVC framework with PHP
+A MVC framework with PHP
 
 ## Usage
 
@@ -53,7 +53,9 @@ $app->main($rootPath, 'AppName');
 ```php
 namespace Ala\Application\AppName\Controller;
 
-class Index
+use Alf\Controller;
+
+class Index extends Controller
 {
     public function main()
     {

@@ -3,7 +3,7 @@
   "bin": ["bin/alf"],
   "description": "Simple Web MVC Framework",
   "type": "library",
-  "license": "LGPL-3.0",
+  "license": "MIT",
   "authors": [
     {
       "name": "Jordy",

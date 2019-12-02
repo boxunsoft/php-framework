@@ -61,11 +61,8 @@ class Response
 
     public function stop()
     {
-        if ($this->controller && trim(get_class($this->controller),
-                '\\') != trim(Application::getInstance()->getErrorClassName(), '\\')) {
-            if (method_exists($this->controller, 'after')) {
-                $this->controller->after();
-            }
+        if ($this->controller && method_exists($this->controller, 'after')) {
+            $this->controller->after();
         }
         exit;
     }
