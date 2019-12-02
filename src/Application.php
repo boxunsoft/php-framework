@@ -75,6 +75,8 @@ final class Application
         date_default_timezone_set(isset($config['timezone']) ? $config['timezone'] : 'Asia/Shanghai');
         header('Content-type:text/html;charset=utf-8');
 
+        $this->handler();
+
         $this->validateSuffix();
     }
 
@@ -240,19 +242,19 @@ final class Application
         if ($this->shutdownHandler && is_callable($this->shutdownHandler)) {
             register_shutdown_function($this->shutdownHandler);
         } else {
-            set_error_handler('\\Alf\\Error::errorHandler');
+            set_error_handler([$this, 'shutdownHandler']);
         }
         // Capture Exception thrown errors
         if ($this->exceptionHandler && is_callable($this->exceptionHandler)) {
             set_exception_handler($this->exceptionHandler);
         } else {
-            set_exception_handler('\\Alf\\Error::exceptionHandler');
+            set_exception_handler([$this, 'exceptionHandler']);
         }
         // Catching grammatical errors
         if ($this->errorHandler && is_callable($this->errorHandler)) {
             set_error_handler($this->errorHandler);
         } else {
-            set_error_handler('\\Alf\\Error::errorHandler');
+            set_error_handler([$this, 'errorHandler']);
         }
     }
 
@@ -278,5 +280,69 @@ final class Application
     public function setBaseAppNamespace($namespace)
     {
         $this->baseAppNamespace = $namespace;
+    }
+
+    /**
+     * 代码抛出错误拦截
+     * @param Exception $e
+     */
+    public function exceptionHandler($e)
+    {
+        /*E_ERROR,
+        E_CORE_ERROR,
+        E_COMPILE_ERROR,
+        E_USER_ERROR,
+        E_PARSE,
+        E_RECOVERABLE_ERROR*/
+        $message = sprintf('message: %s ( %d ), file: %s ( %d )', $e->getMessage(), $e->getCode(), $e->getFile(),
+            $e->getLine());
+
+        if (isset($_SERVER['X_REQUESTED_WITH']) && 'XMLHttpRequest' == $_SERVER['X_REQUESTED_WITH']) {
+            $response = [
+                'code' => $e->getCode() ? $e->getCode() : HttpCode::INTERNAL_SERVER_ERROR,
+                'msg' => $message,
+                'data' => []
+            ];
+            ob_clean();
+            header('Content-type:application/json;charset=utf-8');
+            //指定JSON_PARTIAL_OUTPUT_ON_ERROR,避免$data中有非utf-8字符导致json编码返回false
+            echo json_encode($response, JSON_PARTIAL_OUTPUT_ON_ERROR);
+        } else {
+            echo $message;
+        }
+    }
+
+    /**
+     * 语法错误信息拦截
+     *
+     * @param $errorCode
+     * @param $errorMessage
+     * @param $errorFile
+     * @param $errorLine
+     */
+    public function errorHandler($errorCode, $errorMessage, $errorFile, $errorLine)
+    {
+        if (!(error_reporting() & $errorCode)) {
+            return;
+        }
+
+        $e = new \Exception($errorMessage, $errorCode);
+        $e->setFile($errorFile);
+        $e->setLine($errorLine);
+        $this->exceptionHandler($e);
+    }
+
+    /**
+     * 程序执行结束处理
+     */
+    public function shutdownHandler()
+    {
+        $error = error_get_last();
+        if ($error) {
+            $e = new \Exception($error['message'], $error['type']);
+            $e->setFile($error['file']);
+            $e->setLine($error['line']);
+            $this->exceptionHandler($e);
+        }
     }
 }

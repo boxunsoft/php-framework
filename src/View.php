@@ -45,6 +45,9 @@ class View
             $tpl = $this->_getDefaultTpl();
         }
         $tplFile = $this->_getTplFile($tpl);
+        if (!file_exists($tplFile)) {
+            throw new \Exception('The template file ' . $tplFile . ' is not exists', HttpCode::NOT_FOUND);
+        }
         $this->data && extract($this->data);
         $this->data = null;
         include $tplFile;
