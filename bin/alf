@@ -1,2 +1,0 @@
-<?php
-echo 'test bin cmd'.PHP_EOL;
