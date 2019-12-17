@@ -3,12 +3,8 @@
  * Created by PhpStorm.
  * User: Jordy
  * Date: 2019/12/17
- * Time: 4:04 PM
+ * Time: 7:30 PM
  */
-
-namespace Alf;
-
-class View extends \All\View\View
-{
-
-}
+return [
+    '/router/:foo/:id' => '/router/bar',
+];
