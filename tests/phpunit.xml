@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<phpunit bootstrap="../vendor/autoload.php"
+         colors="true">
+    <php>
+        <env name="ALF_ENV" value="test" />
+    </php>
+</phpunit>

@@ -8,13 +8,16 @@
 
 namespace Alf;
 
+use All\Request\Request;
+use All\Response\Response;
+
 /**
  * 控制器
  *
  * Class Controller
  * @package Alf
  */
-class Controller
+abstract class Controller
 {
     /**
      * @var Request
@@ -24,22 +27,11 @@ class Controller
      * @var Response
      */
     private $response;
-    /**
-     * @var Application
-     */
-    private $app;
 
     public function __construct()
     {
-        $this->app = Application::getInstance();
         $this->request = Request::getInstance();
         $this->response = Response::getInstance();
-        $this->response->setController($this);
-    }
-
-    public function app()
-    {
-        return $this->app;
     }
 
     public function request()
@@ -51,4 +43,6 @@ class Controller
     {
         return $this->response;
     }
+
+    abstract public function main();
 }

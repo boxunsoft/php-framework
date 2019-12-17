@@ -10,11 +10,11 @@ In composer.json
 ```composer.json
 ...
   "require": {
-    "boxunsoft/php-framework": "2.0.*"
+    "boxunsoft/php-framework": "3.0.*"
   },
   "autoload": {
     "psr-4": {
-      "Ala\\": "src/"
+      "Bx\\": "src/"
     }
   }
 ...
@@ -51,7 +51,7 @@ $app->main($rootPath, 'AppName');
 #### Application/AppName/Controller/Index.php
 
 ```php
-namespace Ala\Application\AppName\Controller;
+namespace Bx\Application\AppName\Controller;
 
 use Alf\Controller;
 
