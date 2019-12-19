@@ -22,7 +22,7 @@ class Curl extends \Alf\Controller
                 'data' => $this->request()->post(),
                 'input' => $this->request()->input(),
                 'header' => [
-                    'csrf_token' => $this->request()->header()->get('X_CSRF_TOKEN'),
+                    'csrf_token' => $this->request()->header()->get('CSRF_TOKEN'),
                 ]
             ];
         } elseif ($this->request()->isPut()) {
@@ -32,7 +32,7 @@ class Curl extends \Alf\Controller
                 'data' => $this->request()->post(),
                 'input' => $this->request()->input(),
                 'header' => [
-                    'csrf_token' => $this->request()->header()->get('X_CSRF_TOKEN'),
+                    'csrf_token' => $this->request()->header()->get('CSRF_TOKEN'),
                 ]
             ];
         } elseif ($this->request()->isDelete()) {
@@ -42,7 +42,7 @@ class Curl extends \Alf\Controller
                 'data' => $this->request()->post(),
                 'input' => $this->request()->input(),
                 'header' => [
-                    'csrf_token' => $this->request()->header()->get('X_CSRF_TOKEN'),
+                    'csrf_token' => $this->request()->header()->get('CSRF_TOKEN'),
                 ]
             ];
         } elseif ($this->request()->isGet()) {
