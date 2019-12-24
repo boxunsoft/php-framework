@@ -15,7 +15,7 @@
   "require": {
     "php": ">=7",
     "boxunsoft/php-instance": "v1.1.*",
-    "boxunphp/php-library": "v1.3.*"
+    "boxunphp/php-library": "dev-master"
   },
   "autoload": {
     "psr-4": {
