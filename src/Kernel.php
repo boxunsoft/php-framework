@@ -10,8 +10,14 @@ namespace Alf;
 
 use Ali\InstanceTrait;
 use All\Config\Config;
+use All\Exception\ErrorException;
 use All\Exception\Exception;
+use All\Exception\FatalException;
 use All\Exception\HttpException;
+use All\Exception\MemcacheException;
+use All\Exception\MysqlException;
+use All\Exception\RedisException;
+use All\Exception\ServerErrorException;
 use All\Logger\Logger;
 use All\Request\Request;
 use All\Response\Response;
@@ -350,8 +356,52 @@ final class Kernel
         E_PARSE,
         E_RECOVERABLE_ERROR*/
         $code = $e->getCode() ? $e->getCode() : HttpCode::INTERNAL_SERVER_ERROR;
-        /*$message = sprintf('message: %s ( %d ), file: %s ( %d )', $e->getMessage(), $e->getCode(), $e->getFile(),
-            $e->getLine());*/
+        $message = sprintf('message: %s ( %d ), file: %s ( %d )', $e->getMessage(), $e->getCode(), $e->getFile(),
+            $e->getLine());
+
+        // 日志
+        $logData = [
+            'code' => $code,
+            'message' => $message,
+        ];
+
+        // 资源参数
+        if ($e instanceof MysqlException) {
+            $logData['sql'] = $e->getPrepareSql();
+            $logData['params'] = $e->getParams();
+            $logData['host'] = $e->getHost();
+            $logData['port'] = $e->getPort();
+        } elseif ($e instanceof RedisException) {
+            $logData['method'] = $e->getMethod();
+            $logData['params'] = $e->getParams();
+            $logData['host'] = $e->getHost();
+            $logData['port'] = $e->getPort();
+        } elseif ($e instanceof MemcacheException) {
+            $logData['method'] = $e->getMethod();
+            $logData['params'] = $e->getParams();
+            $logData['config'] = $e->getConfig();
+        }
+
+        // 记录日志
+        if (in_array($code, [
+                E_ERROR,
+                E_CORE_ERROR,
+                E_COMPILE_ERROR,
+                E_USER_ERROR,
+                E_PARSE,
+                E_RECOVERABLE_ERROR
+            ])
+            || $e instanceof ErrorException
+            || $e instanceof ServerErrorException) {
+            $this->logger()->error($logData);
+        } elseif (in_array($code, [E_NOTICE, E_USER_NOTICE])) {
+            $this->logger()->info($logData);
+        } elseif ($e instanceof FatalException) {
+            $this->logger()->fatal($logData);
+        } else {
+            $this->logger()->warn($logData);
+        }
+
         $request = Request::getInstance();
         $response = Response::getInstance();
         if ($request->isXmlHttpRequest()) {
