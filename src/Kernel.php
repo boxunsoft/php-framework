@@ -297,7 +297,7 @@ final class Kernel
         if ($this->shutdownHandler && is_callable($this->shutdownHandler)) {
             register_shutdown_function($this->shutdownHandler);
         } else {
-            set_error_handler([$this, 'shutdownHandler']);
+            register_shutdown_function([$this, 'shutdownHandler']);
         }
         // Capture Exception thrown errors
         if ($this->exceptionHandler && is_callable($this->exceptionHandler)) {
