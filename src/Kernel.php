@@ -349,12 +349,6 @@ final class Kernel
      */
     public function exceptionHandler($e)
     {
-        /*E_ERROR,
-        E_CORE_ERROR,
-        E_COMPILE_ERROR,
-        E_USER_ERROR,
-        E_PARSE,
-        E_RECOVERABLE_ERROR*/
         $code = $e->getCode() ? $e->getCode() : HttpCode::INTERNAL_SERVER_ERROR;
         $message = sprintf('message: %s ( %d ), file: %s ( %d )', $e->getMessage(), $e->getCode(), $e->getFile(),
             $e->getLine());
