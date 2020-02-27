@@ -122,6 +122,14 @@ final class Kernel
 
         // 设置时区
         date_default_timezone_set(isset($config['timezone']) ? $config['timezone'] : 'Asia/Shanghai');
+
+        // 响应头
+        // 只允许同域名iframe嵌套
+        header('X-Frame-Options: SAMEORIGIN');
+        // 禁止浏览器用MIME-sniffing解析资源类型
+        header('X-Content-Type-Options: nosniff');
+        // 启用XSS保护
+        header('X-XSS-Protection: 1');
         header('Content-type:text/html;charset=utf-8');
 
         // 日志
