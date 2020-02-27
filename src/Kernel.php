@@ -129,7 +129,7 @@ final class Kernel
         // 禁止浏览器用MIME-sniffing解析资源类型
         header('X-Content-Type-Options: nosniff');
         // 启用XSS保护
-        header('X-XSS-Protection: 1');
+        header('X-XSS-Protection: 1; mode=block');
         header('Content-type:text/html;charset=utf-8');
 
         // 日志
