@@ -124,13 +124,7 @@ final class Kernel
         date_default_timezone_set(isset($config['timezone']) ? $config['timezone'] : 'Asia/Shanghai');
 
         // 响应头
-        // 只允许同域名iframe嵌套
-        header('X-Frame-Options: SAMEORIGIN');
-        // 禁止浏览器用MIME-sniffing解析资源类型
-        header('X-Content-Type-Options: nosniff');
-        // 启用XSS保护
-        header('X-XSS-Protection: 1; mode=block');
-        header('Content-type:text/html;charset=utf-8');
+        $this->setHeader();
 
         // 日志
         if (!empty($config['log_level'])) {
@@ -303,6 +297,17 @@ final class Kernel
                 throw new HttpException(HttpCode::REQUESTED_RANGE_NOT_SATISFIABLE);
             }
         }
+    }
+
+    protected function setHeader()
+    {
+        // 只允许同域名iframe嵌套
+        header('X-Frame-Options: SAMEORIGIN');
+        // 禁止浏览器用MIME-sniffing解析资源类型
+        header('X-Content-Type-Options: nosniff');
+        // 启用XSS保护
+        header('X-XSS-Protection: 1; mode=block');
+        header('Content-type:text/html;charset=utf-8');
     }
 
     protected function handler()
