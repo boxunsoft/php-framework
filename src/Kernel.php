@@ -8,7 +8,6 @@
 
 namespace Alf;
 
-use Ali\InstanceTrait;
 use All\Config\Config;
 use All\Exception\ErrorException;
 use All\Exception\Exception;
@@ -18,6 +17,7 @@ use All\Exception\MemcacheException;
 use All\Exception\MysqlException;
 use All\Exception\RedisException;
 use All\Exception\ServerErrorException;
+use All\Instance\InstanceTrait;
 use All\Logger\Logger;
 use All\Request\Request;
 use All\Response\Response;
@@ -28,11 +28,10 @@ final class Kernel
 {
     use InstanceTrait;
 
-    const ENV_DEVELOP = 'develop';
-    const ENV_TEST = 'test';
-    const ENV_PRE = 'pre';
-    const ENV_BETA = 'beta';
-    const ENV_RELEASE = 'release';
+    const ENV_DEVELOP = 'develop';      // 开发环境
+    const ENV_TEST = 'test';            // 测试环境
+    const ENV_BETA = 'beta';            // 线上测试环境
+    const ENV_RELEASE = 'release';      // 线上生产环境
 
     /**
      * 站点根目录
@@ -45,7 +44,7 @@ final class Kernel
      */
     private $appName;
     /**
-     * 应用命名窨
+     * 应用命名空间
      * @var string
      */
     private $appNamespace = 'Bx';
@@ -127,18 +126,23 @@ final class Kernel
         $this->setHeader();
 
         // 日志
+        // 日志等级
         if (!empty($config['log_level'])) {
             Logger::setLevel($config['log_level']);
         }
+        // 日志保存路径
         if (!empty($config['log_save_path'])) {
             Logger::setSavePath($config['log_save_path']);
         }
+        // 日志的输出类型
         if (!empty($config['log_save_handler'])) {
             Logger::setSaveHandler($config['log_save_handler']);
         }
 
+        // 错误处理
         $this->handler();
 
+        // 验证URL后缀
         $this->validateSuffix();
     }
 
@@ -294,6 +298,7 @@ final class Kernel
             $request = Request::getInstance();
             $suffix = $request->suffix();
             if (!($suffix && in_array($suffix, $this->suffixs))) {
+                $this->logger()->warn(['suffix'=>$suffix,'suffixs'=>$this->suffixs], 'suffix');
                 throw new HttpException(HttpCode::REQUESTED_RANGE_NOT_SATISFIABLE);
             }
         }
@@ -307,24 +312,25 @@ final class Kernel
         header('X-Content-Type-Options: nosniff');
         // 启用XSS保护
         header('X-XSS-Protection: 1; mode=block');
+        // 默认UTF-8
         header('Content-type:text/html;charset=utf-8');
     }
 
     protected function handler()
     {
-        // Capture errors after the program runs
+        // 代码执行后捕获错误
         if ($this->shutdownHandler && is_callable($this->shutdownHandler)) {
             register_shutdown_function($this->shutdownHandler);
         } else {
             register_shutdown_function([$this, 'shutdownHandler']);
         }
-        // Capture Exception thrown errors
+        // 捕获Exception错误
         if ($this->exceptionHandler && is_callable($this->exceptionHandler)) {
             set_exception_handler($this->exceptionHandler);
         } else {
             set_exception_handler([$this, 'exceptionHandler']);
         }
-        // Catching grammatical errors
+        // 捕获PHP语法错误
         if ($this->errorHandler && is_callable($this->errorHandler)) {
             set_error_handler($this->errorHandler);
         } else {
@@ -363,8 +369,13 @@ final class Kernel
     public function exceptionHandler($e)
     {
         $code = $e->getCode() ? $e->getCode() : HttpCode::INTERNAL_SERVER_ERROR;
-        $message = sprintf('message: %s ( %d ), file: %s ( %d )', $e->getMessage(), $e->getCode(), $e->getFile(),
-            $e->getLine());
+        $message = sprintf(
+            'message: %s ( %d ), file: %s ( %d )',
+            $e->getMessage(),
+            $e->getCode(),
+            $e->getFile(),
+            $e->getLine()
+        );
 
         // 日志
         $logData = [
