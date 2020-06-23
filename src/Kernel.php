@@ -8,25 +8,34 @@
 
 namespace Alf;
 
+use Alf\Console\Console;
+use Alf\Router\Router;
+use Alf\Traits\RequestTrait;
+use Alf\Traits\ResponseTrait;
 use All\Config\Config;
 use All\Exception\ErrorException;
 use All\Exception\Exception;
 use All\Exception\FatalException;
-use All\Exception\HttpException;
 use All\Exception\MemcacheException;
 use All\Exception\MysqlException;
 use All\Exception\RedisException;
 use All\Exception\ServerErrorException;
 use All\Instance\InstanceTrait;
+use All\Logger\Handler\FileHandler;
+use All\Logger\Handler\StreamHandler;
 use All\Logger\Logger;
-use All\Request\Request;
-use All\Response\Response;
-use All\Router\Router;
-use All\Utils\HttpCode;
+use Psr\Log\LoggerInterface;
+use Psr\Log\LoggerAwareTrait;
+use Psr\Log\LogLevel;
+use RuntimeException;
+use Throwable;
 
 final class Kernel
 {
     use InstanceTrait;
+    use LoggerAwareTrait;
+    use RequestTrait;
+    use ResponseTrait;
 
     const ENV_DEVELOP = 'develop';      // 开发环境
     const ENV_TEST = 'test';            // 测试环境
@@ -44,11 +53,6 @@ final class Kernel
      */
     private $appName;
     /**
-     * 应用命名空间
-     * @var string
-     */
-    private $appNamespace = 'Bx';
-    /**
      * 环境变量
      * @var string
      */
@@ -58,7 +62,6 @@ final class Kernel
      * @var string
      */
     private $envPath;
-
     /**
      * 允许的URL后缀配置
      * @var array
@@ -71,22 +74,8 @@ final class Kernel
     private $isInitialized = false;
 
     /**
-     * PHP 执行结束回调函数
-     * @var callable
-     */
-    protected $shutdownHandler;
-    /**
-     * PHP错误回调函数
-     * @var callable
-     */
-    protected $errorHandler;
-    /**
-     * PHP Exception错误回调函数
-     * @var callable
-     */
-    protected $exceptionHandler;
-
-    /**
+     * WEB模式
+     * 
      * @param string $rootPath
      * @param string $appName
      * @throws \Exception
@@ -97,53 +86,55 @@ final class Kernel
             return;
         }
 
-        $this->isInitialized = true;
-        $this->initialize($rootPath, $appName);
+        $this->rootPath = $rootPath;
+        $this->appName = $appName;
+
+        $this->initialize();
         $this->bootstrap();
+    }
+
+    /**
+     * 命令行模式
+     * 使用 Symfony/Console
+     * 
+     * @return Console
+     */
+    public function console(callable $callback, $name = 'Console', $version = '1.0.0')
+    {
+        if ($this->isInitialized) {
+            return;
+        }
+
+        $this->initialize();
+
+        $app = new Console($name, $version);
+        if ($callback) {
+            $callback($app);
+        }
+        return $app;
     }
 
     /**
      * initialize from $env/app.php
      *
-     * @param $rootPath
-     * @param $appName
      * @throws \Exception
      */
-    private function initialize($rootPath, $appName)
+    private function initialize()
     {
-        $this->rootPath = $rootPath;
-        $this->appName = $appName;
+        $this->isInitialized = true;
 
         $config = $this->env()->get('app');
         // 设置错误显示
-        error_reporting(isset($config['error_reporting']) ? $config['error_reporting'] : E_ALL & ~E_NOTICE & ~E_WARNING & ~E_STRICT);
+        error_reporting(isset($config['error_reporting']) ? $config['error_reporting'] : E_ALL);
         ini_set('display_errors', isset($config['display_errors']) ? boolval($config['display_errors']) : false);
 
         // 设置时区
         date_default_timezone_set(isset($config['timezone']) ? $config['timezone'] : 'Asia/Shanghai');
 
-        // 响应头
-        $this->setHeader();
-
-        // 日志
-        // 日志等级
-        if (!empty($config['log_level'])) {
-            Logger::setLevel($config['log_level']);
-        }
-        // 日志保存路径
-        if (!empty($config['log_save_path'])) {
-            Logger::setSavePath($config['log_save_path']);
-        }
-        // 日志的输出类型
-        if (!empty($config['log_save_handler'])) {
-            Logger::setSaveHandler($config['log_save_handler']);
-        }
-
-        // 错误处理
-        $this->handler();
-
-        // 验证URL后缀
-        $this->validateSuffix();
+        // 设置捕捉句柄
+        set_error_handler([$this, 'errorHandler'], error_reporting());
+        set_exception_handler([$this, 'exceptionHandler']);
+        register_shutdown_function([$this, 'shutdownHandler']);
     }
 
     /**
@@ -151,28 +142,29 @@ final class Kernel
      */
     private function bootstrap()
     {
-        $request = Request::getInstance();
-        $uri = $request->uri();
-
-        // before route
         $router = Router::getInstance();
+
         $routerConfig = $this->config()->get('router/' . strtolower($this->getAppName()));
         if ($routerConfig) {
             $router->init($routerConfig);
         }
-        $router->route($uri);
-        // after route
 
-        $fullClassName = $this->getFullClassName();
-        $controllerFile = $this->getFullFilePath();
+        $res = $router->dispatch($this->request()->method(), $this->request()->getRequestUri());
+        if (empty($res[0])) {
+            throw new RuntimeException('Not Found', 404);
+        }
+        if (Router::FOUND !== $res[0]) {
+            throw new RuntimeException('Method Not Allowed', 409);
+        }
+        $className = $res[1];
 
-        if (!is_file($controllerFile) || !class_exists($fullClassName)) {
-            throw new HttpException(HttpCode::NOT_FOUND);
+        if (!class_exists($className)) {
+            throw new RuntimeException('Not Found', 404);
         }
 
-        $controller = new $fullClassName();
+        $controller = new $className($res[2] ?: []);
         if (!method_exists($controller, 'main') || !is_callable([$controller, 'main'])) {
-            throw new HttpException(HttpCode::METHOD_NOT_ALLOWED);
+            throw new RuntimeException('Method main Not Allowed', 409);
         }
 
         if (method_exists($controller, 'before') && is_callable([$controller, 'before'])) {
@@ -186,22 +178,6 @@ final class Kernel
         }
     }
 
-    private function getFullClassName()
-    {
-        return sprintf('%s\\Controller\\%s', $this->getAppNamespace(), Router::getInstance()->getController());
-    }
-
-    private function getFullFilePath()
-    {
-        return sprintf('%s/Controller/%s.php', $this->getAppPath(), Router::getInstance()->getPath());
-    }
-
-    public function setSuffixs(array $suffixs)
-    {
-        $this->suffixs = $suffixs;
-        return $this;
-    }
-
     public function getRootPath()
     {
         return $this->rootPath;
@@ -210,11 +186,6 @@ final class Kernel
     public function getAppName()
     {
         return $this->appName;
-    }
-
-    public function getAppNamespace()
-    {
-        return '\\' . $this->appNamespace . '\\App\\' . $this->appName;
     }
 
     public function getAppPath()
@@ -258,14 +229,25 @@ final class Kernel
     }
 
     /**
-     * @return Logger
+     * @return LoggerInterface
      */
     public function logger()
     {
         static $logger;
         if (is_null($logger)) {
-            $logger = Logger::getInstance();
+            $config = $this->env()->get('app');
+            $level = $config['log_level'] ?? LogLevel::DEBUG;
+            $saveHandler = $config['log_save_handler'] ?? Logger::HANDLER_FILE;
+            if (Logger::HANDLER_STDOUT == $saveHandler) {
+                $handler = new StreamHandler();
+                $handler->setFilename($config['log_save_path'] ?? 'php://stdout');
+            } else {
+                $handler = new FileHandler();
+                $handler->setSavePath($config['log_save_path'] ?? $this->getRootPath() . DIRECTORY_SEPARATOR . 'logs');
+            }
+            $logger = new Logger($level, $handler);
         }
+
         return $logger;
     }
 
@@ -290,85 +272,12 @@ final class Kernel
     }
 
     /**
-     * @throws HttpException
-     */
-    protected function validateSuffix()
-    {
-        if ($this->suffixs) {
-            $request = Request::getInstance();
-            $suffix = $request->suffix();
-            if (!($suffix && in_array($suffix, $this->suffixs))) {
-                $this->logger()->warn(['suffix'=>$suffix,'suffixs'=>$this->suffixs], 'suffix');
-                throw new HttpException(HttpCode::REQUESTED_RANGE_NOT_SATISFIABLE);
-            }
-        }
-    }
-
-    protected function setHeader()
-    {
-        // 只允许同域名iframe嵌套
-        header('X-Frame-Options: SAMEORIGIN');
-        // 禁止浏览器用MIME-sniffing解析资源类型
-        header('X-Content-Type-Options: nosniff');
-        // 启用XSS保护
-        header('X-XSS-Protection: 1; mode=block');
-        // 默认UTF-8
-        header('Content-type:text/html;charset=utf-8');
-    }
-
-    protected function handler()
-    {
-        // 代码执行后捕获错误
-        if ($this->shutdownHandler && is_callable($this->shutdownHandler)) {
-            register_shutdown_function($this->shutdownHandler);
-        } else {
-            register_shutdown_function([$this, 'shutdownHandler']);
-        }
-        // 捕获Exception错误
-        if ($this->exceptionHandler && is_callable($this->exceptionHandler)) {
-            set_exception_handler($this->exceptionHandler);
-        } else {
-            set_exception_handler([$this, 'exceptionHandler']);
-        }
-        // 捕获PHP语法错误
-        if ($this->errorHandler && is_callable($this->errorHandler)) {
-            set_error_handler($this->errorHandler);
-        } else {
-            set_error_handler([$this, 'errorHandler']);
-        }
-    }
-
-    public function setShutdownHandler(callable $handler)
-    {
-        $this->shutdownHandler = $handler;
-    }
-
-    public function setErrorHandler(callable $handler)
-    {
-        $this->errorHandler = $handler;
-    }
-
-    public function setExceptionHandler(callable $handler)
-    {
-        $this->exceptionHandler = $handler;
-    }
-
-    /**
-     * 设置命名空间
-     * @param $namespace
-     */
-    public function setAppNamespace($namespace)
-    {
-        $this->appNamespace = $namespace;
-    }
-
-    /**
      * 代码抛出错误拦截
-     * @param \Exception $e
+     * @param \Throwable $e
      */
-    public function exceptionHandler($e)
+    public function exceptionHandler(\Throwable $e)
     {
-        $code = $e->getCode() ? $e->getCode() : HttpCode::INTERNAL_SERVER_ERROR;
+        $code = $e->getCode() ? (int) $e->getCode() : E_WARNING;
         $message = sprintf(
             'message: %s ( %d ), file: %s ( %d )',
             $e->getMessage(),
@@ -378,26 +287,26 @@ final class Kernel
         );
 
         // 日志
-        $logData = [
+        $log = [
             'code' => $code,
             'message' => $message,
         ];
 
         // 资源参数
         if ($e instanceof MysqlException) {
-            $logData['sql'] = $e->getPrepareSql();
-            $logData['params'] = $e->getParams();
-            $logData['host'] = $e->getHost();
-            $logData['port'] = $e->getPort();
+            $log['sql'] = $e->getPrepareSql();
+            $log['params'] = $e->getParams();
+            $log['host'] = $e->getHost();
+            $log['port'] = $e->getPort();
         } elseif ($e instanceof RedisException) {
-            $logData['method'] = $e->getMethod();
-            $logData['params'] = $e->getParams();
-            $logData['host'] = $e->getHost();
-            $logData['port'] = $e->getPort();
+            $log['method'] = $e->getMethod();
+            $log['params'] = $e->getParams();
+            $log['host'] = $e->getHost();
+            $log['port'] = $e->getPort();
         } elseif ($e instanceof MemcacheException) {
-            $logData['method'] = $e->getMethod();
-            $logData['params'] = $e->getParams();
-            $logData['config'] = $e->getConfig();
+            $log['method'] = $e->getMethod();
+            $log['params'] = $e->getParams();
+            $log['config'] = $e->getConfig();
         }
 
         // 记录日志
@@ -411,23 +320,21 @@ final class Kernel
             ])
             || $e instanceof ErrorException
             || $e instanceof ServerErrorException) {
-            $this->logger()->error($logData);
+            $this->logger()->error($log);
         } elseif (in_array($code, [E_NOTICE, E_USER_NOTICE])) {
-            $this->logger()->info($logData);
+            $this->logger()->info($log);
         } elseif ($e instanceof FatalException) {
-            $this->logger()->fatal($logData);
+            $this->logger()->critical($log);
         } else {
-            $this->logger()->warn($logData);
+            $this->logger()->warning($log);
         }
 
-        $request = Request::getInstance();
-        $response = Response::getInstance();
-        if ($request->isXmlHttpRequest()) {
-            $response->error($code, $e->getMessage());
+        if ($this->request()->isXmlHttpRequest()) {
+            $this->response()->error($code, $e->getMessage());
         } else {
-            echo $e->getMessage();
-            $response->stop();
+            $this->response()->htmlError($code, $e->getMessage());
         }
+        exit;
     }
 
     /**

@@ -1,6 +1,6 @@
-# php-framework
+# PHP框架
 
-A MVC framework with PHP
+一个简单的PHP MVC框架
 
 ## Usage
 
@@ -10,7 +10,7 @@ In composer.json
 ```composer.json
 ...
   "require": {
-    "boxunsoft/php-framework": "3.0.*"
+    "boxunsoft/php-framework": "^4.0"
   },
   "autoload": {
     "psr-4": {
@@ -20,38 +20,51 @@ In composer.json
 ...
 ```
 
-### App Directorys
+### 应用目录
 ```dir
+env                                         // 环境配置
+  |-develop
+      |- app.php
+  |-test
+      |- app.php
+  |-release
+config                                      // 系统配置
+  |- router                                     // 路由
+       |- appname.php
+public                                      // 入口
+  |- appname
+       |- index.php
 src
-  |- Application
-       |- AppName
-           |- Controller
+  |- App                                    // 多应用
+       |- AppName                               // 应用一
+           |- Controller                            // 应用控制器
                 |- Index.php
-           |- View
+           |- View                                  // 应用视图,可自行选择模板引擎
                 |- Index.phtml
-  |- public
-       |- appname
-            |- index.php
+  |- Model                                  // 存放模型
+  |- Library                                // 存放自定义类库
   
   
 ```
 
 #### public/appname/index.php
 
-> path name and file name must be lower
+> 目录和文件名必须小写
 
 ```php
-$rootPath = dirname(dirname(dirname(__DIR__)));
+use Alf\Kernel;
+
+$rootPath = (dirname(__DIR__), 3);
 require $rootPath . '/vendor/autoload.php';
 
-$app = Alf\Application::getInstance();
-$app->main($rootPath, 'AppName');
+$Kernel = Kernel::getInstance();
+$app->Kernel($rootPath, 'AppName');
 ```
 
-#### Application/AppName/Controller/Index.php
+#### App/AppName/Controller/Index.php
 
 ```php
-namespace Bx\Application\AppName\Controller;
+namespace Bx\App\AppName\Controller;
 
 use Alf\Controller;
 
@@ -68,10 +81,19 @@ class Index extends Controller
 }
 ```
 
-## Documents
+## 安全建议
 
-> writing...
+```
+// 只允许同域名iframe嵌套
+header('X-Frame-Options: SAMEORIGIN');
+// 禁止浏览器用MIME-sniffing解析资源类型
+header('X-Content-Type-Options: nosniff');
+// 启用XSS保护
+header('X-XSS-Protection: 1; mode=block');
+```
 
-## Thank
+## 引用
 
-Standing on the shoulders of giants. Thank All.
+> * symfony/http-foundation
+> * nikic/fast-route
+> * symfony/console

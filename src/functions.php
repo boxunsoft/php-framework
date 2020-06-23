@@ -1,19 +1,44 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: Jordy
- * Date: 2019/12/17
- * Time: 4:12 PM
+ * This file is part of the Boxunsoft package.
+ *
+ * (c) Jordy <arno.zheng@gmail.com>
+ * 
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code
  */
+
+use Alf\Kernel;
+
+if (!function_exists('kernel')) {
+    /**
+     * @return Kernel
+     */
+    function kernel()
+    {
+        return Kernel::getInstance();
+    }
+}
+
 if (!function_exists('env')) {
     /**
      * @param string $key
      * @return array|null
-     * @throws Exception
      */
     function env($key)
     {
-        return \Alf\Kernel::getInstance()->env()->get($key);
+        return kernel()->env()->get($key);
+    }
+}
+
+if (!function_exists('config')) {
+    /**
+     * @param string $key
+     * @return array|null
+     */
+    function config($key)
+    {
+        return kernel()->config()->get($key);
     }
 }
 
@@ -23,16 +48,7 @@ if (!function_exists('logger')) {
      */
     function logger()
     {
-        return \Alf\Kernel::getInstance()->logger();
+        return kernel()->logger();
     }
 }
 
-if (!function_exists('kernel')) {
-    /**
-     * @return \Alf\Kernel
-     */
-    function kernel()
-    {
-        return \Alf\Kernel::getInstance();
-    }
-}

@@ -1,15 +1,17 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: Jordy
- * Date: 2018/12/25
- * Time: 下午5:54
+ * This file is part of the Boxunsoft package.
+ *
+ * (c) Jordy <arno.zheng@gmail.com>
+ * 
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code
  */
 
 namespace Alf;
 
-use All\Request\Request;
-use All\Response\Response;
+use Alf\Traits\RequestTrait;
+use Alf\Traits\ResponseTrait;
 
 /**
  * 控制器
@@ -19,29 +21,12 @@ use All\Response\Response;
  */
 abstract class Controller
 {
-    /**
-     * @var Request
-     */
-    private $request;
-    /**
-     * @var Response
-     */
-    private $response;
+    use RequestTrait;
+    use ResponseTrait;
 
-    public function __construct()
+    public function __construct(?array $params) 
     {
-        $this->request = Request::getInstance();
-        $this->response = Response::getInstance();
-    }
-
-    public function request()
-    {
-        return $this->request;
-    }
-
-    public function response()
-    {
-        return $this->response;
+        $this->request()->attribute()->replace($params ?: []);
     }
 
     abstract public function main();
