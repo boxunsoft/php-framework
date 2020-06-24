@@ -149,7 +149,7 @@ final class Kernel
             $router->init($routerConfig);
         }
 
-        $res = $router->dispatch($this->request()->method(), $this->request()->getRequestUri());
+        $res = $router->dispatch($this->request()->method(), $this->request()->getPathInfo());
         if (empty($res[0])) {
             throw new RuntimeException('Not Found', 404);
         }

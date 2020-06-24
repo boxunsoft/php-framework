@@ -142,16 +142,16 @@
         },
         {
             "name": "boxunphp/logger",
-            "version": "v2.0.1",
+            "version": "v2.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/boxunphp/logger.git",
-                "reference": "27521f415bd58cb4aabf8a0adc7b3b2c13fed213"
+                "reference": "68c1ce5c648a67a5bed4be5da735b12c4034e501"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/boxunphp/logger/zipball/27521f415bd58cb4aabf8a0adc7b3b2c13fed213",
-                "reference": "27521f415bd58cb4aabf8a0adc7b3b2c13fed213",
+                "url": "https://api.github.com/repos/boxunphp/logger/zipball/68c1ce5c648a67a5bed4be5da735b12c4034e501",
+                "reference": "68c1ce5c648a67a5bed4be5da735b12c4034e501",
                 "shasum": "",
                 "mirrors": [
                     {
@@ -185,20 +185,20 @@
                 }
             ],
             "description": "PHP日志类",
-            "time": "2020-06-23T11:39:02+00:00"
+            "time": "2020-06-24T01:49:40+00:00"
         },
         {
             "name": "boxunphp/request",
-            "version": "v2.0",
+            "version": "v2.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/boxunphp/request.git",
-                "reference": "6ddb80ce991adfab236b94c9dbbfe3fa3dc7964f"
+                "reference": "2315087cbce394f80b9a0d56b07d37b06ac864c7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/boxunphp/request/zipball/6ddb80ce991adfab236b94c9dbbfe3fa3dc7964f",
-                "reference": "6ddb80ce991adfab236b94c9dbbfe3fa3dc7964f",
+                "url": "https://api.github.com/repos/boxunphp/request/zipball/2315087cbce394f80b9a0d56b07d37b06ac864c7",
+                "reference": "2315087cbce394f80b9a0d56b07d37b06ac864c7",
                 "shasum": "",
                 "mirrors": [
                     {
@@ -232,7 +232,7 @@
                 }
             ],
             "description": "PHP请求类",
-            "time": "2020-06-23T11:29:33+00:00"
+            "time": "2020-06-24T02:57:48+00:00"
         },
         {
             "name": "nikic/fast-route",
