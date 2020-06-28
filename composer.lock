@@ -189,16 +189,16 @@
         },
         {
             "name": "boxunphp/request",
-            "version": "v2.0.1",
+            "version": "v2.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/boxunphp/request.git",
-                "reference": "2315087cbce394f80b9a0d56b07d37b06ac864c7"
+                "reference": "72bbcf3c4bb4099fad0d9c92adc4ec6bdf1c3586"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/boxunphp/request/zipball/2315087cbce394f80b9a0d56b07d37b06ac864c7",
-                "reference": "2315087cbce394f80b9a0d56b07d37b06ac864c7",
+                "url": "https://api.github.com/repos/boxunphp/request/zipball/72bbcf3c4bb4099fad0d9c92adc4ec6bdf1c3586",
+                "reference": "72bbcf3c4bb4099fad0d9c92adc4ec6bdf1c3586",
                 "shasum": "",
                 "mirrors": [
                     {
@@ -232,7 +232,7 @@
                 }
             ],
             "description": "PHP请求类",
-            "time": "2020-06-24T02:57:48+00:00"
+            "time": "2020-06-24T10:17:33+00:00"
         },
         {
             "name": "nikic/fast-route",
@@ -456,12 +456,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/console.git",
-                "reference": "27737091e88420e97cb7efdaf505820c709c3bbc"
+                "reference": "04531849253d4a989bc580a6d17a67538a9b39cf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/console/zipball/27737091e88420e97cb7efdaf505820c709c3bbc",
-                "reference": "27737091e88420e97cb7efdaf505820c709c3bbc",
+                "url": "https://api.github.com/repos/symfony/console/zipball/04531849253d4a989bc580a6d17a67538a9b39cf",
+                "reference": "04531849253d4a989bc580a6d17a67538a9b39cf",
                 "shasum": "",
                 "mirrors": [
                     {
@@ -553,7 +553,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2020-06-16T21:43:05+00:00"
+            "time": "2020-06-24T13:36:31+00:00"
         },
         {
             "name": "symfony/deprecation-contracts",
@@ -631,12 +631,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/http-foundation.git",
-                "reference": "5507da8d971e8688a4b335975e01a1004014b43b"
+                "reference": "1b66b861f3ff55fb39c13822a0fc915018b5ac84"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/http-foundation/zipball/5507da8d971e8688a4b335975e01a1004014b43b",
-                "reference": "5507da8d971e8688a4b335975e01a1004014b43b",
+                "url": "https://api.github.com/repos/symfony/http-foundation/zipball/1b66b861f3ff55fb39c13822a0fc915018b5ac84",
+                "reference": "1b66b861f3ff55fb39c13822a0fc915018b5ac84",
                 "shasum": "",
                 "mirrors": [
                     {
@@ -704,7 +704,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2020-06-18T19:55:03+00:00"
+            "time": "2020-06-23T11:46:20+00:00"
         },
         {
             "name": "symfony/polyfill-ctype",
