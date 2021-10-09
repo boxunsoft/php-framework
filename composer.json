@@ -9,18 +9,13 @@
       "email": "arno.zheng@gmail.com"
     }
   ],
-  "minimum-stability": "dev",
-  "require-dev": {},
   "require": {
     "php": ">=7.2",
     "psr/http-message": "1.0.1",
     "symfony/console": "^5.0",
     "symfony/http-foundation": "^5.1",
     "nikic/fast-route": "^1.3",
-    "boxunphp/exception": "^2.0",
-    "boxunphp/request": "^2.0",
-    "boxunphp/config": "^2.0",
-    "boxunphp/logger": "^2.0"
+    "boxunphp/php-library": "^2.1"
   },
   "autoload": {
     "psr-4": {
